@@ -18,7 +18,7 @@ print(f'Средняя оценка по Географии - {df["Geography"].m
 print(f'Средняя оценка по Литературе - {df["Literature"].mean()}')
 print(f'Средняя оценка по Биологии - {df["Biology"].mean()}')
 print(f'Средняя оценка по Физике - {df["Physics"].mean()}')
-# выводим медеанную оценку
+# выводим медианную оценку
 print(f"Медианная оценка по Математики - {df['Mathematics'].median()}")
 print(f"Медианная оценка по Географии - {df['Geography'].median()}")
 print(f"Медианная оценка по Литературе - {df['Literature'].median()}")

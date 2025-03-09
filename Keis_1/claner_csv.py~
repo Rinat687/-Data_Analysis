@@ -1,0 +1,69 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+import csv
+
+# Инициализация драйвера Firefox
+driver = webdriver.Firefox()
+
+def parse_prices(url):
+    driver.get(url)
+    time.sleep(5)  # Ожидание загрузки страницы
+
+    prices = []
+    page_number = 1
+
+    while True:
+        print(f"Парсинг страницы {page_number}...")
+
+        # Поиск элементов с ценами
+        items = driver.find_elements(By.CSS_SELECTOR, 'div[data-name="ContentRow"]')  # Пример селектора для карточек объявлений
+        for item in items:
+            try:
+                # Ищем элемент с ценой
+                price_element = item.find_element(By.CSS_SELECTOR, 'span[data-mark="MainPrice"]')  # Пример селектора для цены
+                price = price_element.text.strip()
+                prices.append(price)
+            except Exception as e:
+                print(f"Ошибка при парсинге: {e}")
+
+        # Попытка перейти на следующую страницу
+        try:
+            # Ищем кнопку перехода на следующую страницу
+            next_button = driver.find_element(By.CLASS_NAME, 'a[data-name="PaginationButtonNext"]')
+            if "disabled" in next_button.get_attribute("/_93444fe79c--button--KVooB _93444fe79c--link-button--ujZuh _93444fe79c--M--I5Xj6 _93444fe79c--button--WChcG"):
+                print("Это последняя страница.")
+                break
+            next_button.click()
+            time.sleep(5)  # Ожидание загрузки следующей страницы
+            page_number += 1
+        except Exception as e:
+            print(f"Не удалось перейти на следующую страницу: {e}")
+            break
+
+    return prices
+
+def save_to_csv(prices, filename="prices.csv"):
+    with open(filename, mode="w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Price"])  # Заголовок столбца
+        for price in prices:
+            writer.writerow([price])  # Запись каждой цены в новую строку
+
+def main():
+    url = "https://www.cian.ru/snyat-kvartiru-1-komn-ili-2-komn/"
+    prices = parse_prices(url)
+    print("Найденные цены:")
+    for price in prices:
+        print(price)
+
+    # Сохранение цен в CSV-файл
+    save_to_csv(prices)
+    print(f"Цены сохранены в файл prices.csv")
+
+    driver.quit()  # Закрытие браузера
+
+if __name__ == "__main__":
+    main()
